@@ -1,4 +1,5 @@
 import numpy as np
+import uuid
 
 class Agent:
     # riskPropensity: float 0-1, 1 is highest risk
@@ -8,6 +9,8 @@ class Agent:
         self.buyingPower = buyingPower
         self.timePreference = self.getTimePreference()
         self.market = market
+        self.id = uuid.uuid4()
+        self.shares = 0
 
 
     # Returns time preference in seconds
