@@ -8,3 +8,5 @@ class Order:
         self.shares = shares
         self.filled = False
         self.agentId  = id_
+        self.sharesChanged = 0
+        self.amountChanged = 0

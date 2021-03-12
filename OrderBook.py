@@ -34,29 +34,68 @@ class OrderBook:
         price = self.lastExecutedPrice
         while not orderFilled and not price < 0 and not price > self.orderBookDepth:
             orderList = self.OrderBook[price]
-            for o in orderList:
-                if not o.buy:
-                    if o.shares >= order.shares:
-                        o.shares -= order.shares
-                        o.sharesBought += order.shares
-                        o.amountPaid -= order.shares * price
-                        order.shares = 0
-                        orderFilled = True
-                        order.filled = True
-                        self.lastExecutedPrice = price
-                        break
-                    else:
-                        order.shares -= o.shares
-                        o.sharesBought = o.shares
-                        o.shares = 0
-                        o.amountPaid = 0
-                        o.filled = True
-                        self.lastExecutedPrice = price
-            # Checked all orders at this price and still not filled
             if buy:
+                for o in orderList:
+                    if buy != o.buy:
+                        if o.shares >= order.shares:
+                            o.shares -= order.shares
+
+                            o.sharesChanged -= order.shares
+                            o.amountChanged += order.shares * price
+
+                            order.sharesChanged += order.shares
+                            order.amountChanged -= order.shares * price
+
+                            order.shares = 0
+                            orderFilled = True
+                            order.filled = True
+                            self.lastExecutedPrice = price
+                            break
+                        else:
+                            order.shares -= o.shares
+                            o.sharesChanged -= o.shares
+                            o.amountChanged += o.shares * price
+
+                            order.sharesChanged += o.shares
+                            order.amountChanged -= o.shares * price
+
+                            o.shares = 0
+                            o.filled = True
+
+                            self.lastExecutedPrice = price
                 price += 1 / self.dollarIncrements
+                
             else:
+                for o in orderList:
+                    if buy != o.buy:
+                        if o.shares >= order.shares:
+                            o.shares += order.shares
+
+                            o.sharesChanged += order.shares
+                            o.amountChanged -= order.shares * price
+
+                            order.sharesChanged -= order.shares
+                            order.amountChanged += order.shares * price
+
+                            order.shares = 0
+                            orderFilled = True
+                            order.filled = True
+                            self.lastExecutedPrice = price
+                            break
+                        else:
+                            order.shares -= o.shares
+                            o.sharesChanged += o.shares
+                            o.amountChanged -= o.shares * price
+
+                            order.sharesChanged -= o.shares
+                            order.amountChanged += o.shares * price
+
+                            o.shares = 0
+                            o.filled = True
+                            
+                            self.lastExecutedPrice = price
                 price -= 1 / self.dollarIncrements
+
         if not orderFilled:
             print('Market ran out of liquidity!')
 
