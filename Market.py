@@ -20,4 +20,6 @@ class Market:
     def settleOrder(order: Order):
         settlee = self.agents[order.id]
         settlee.buyingPower += order.amountPaid
-        settlee.shares += order.sharesBought
+        settlee.shares += order.sharesChanged
+        order.amountPaid = 0
+        order.sharesChanged = 0
