@@ -1,26 +1,36 @@
 import numpy as np
-from src import Order, OrderBook
+from src.OrderBook import OrderBook
+from src.Order import Order
 
 class Market:
 
     def __init__(self, agents : dict):
-        self.orderData = np.array()
-        self.orderBook = OrderBook()
+        self.orderData = []
+        self.orderBook = OrderBook(market=self)
         self.agents = agents
+        self.addMarketToAgents()
 
     # Get the last seconds seconds of the order data
-    def getMarketData(seconds: int):
+    def getMarketData(self, seconds: int):
         return this.orderData[-seconds:]
 
-    def placeOrder(order: Order):
-        self.orderBook.insertOrder(order)
+    def getCurrentPrice(self):
+        return self.OrderBook.lastExecutedPrice()
 
-    def backFillPriceHistory():
+    def placeOrder(self, order: Order):
+        self.orderBook.matchOrder(order)
+
+    def backFillPriceHistory(self):
         pass
 
-    def settleOrder(order: Order):
+    def settleOrder(self, order: Order):
         settlee = self.agents[order.id]
-        settlee.buyingPower += order.amountPaid
+        settlee.buyingPower += order.amountChanged
         settlee.shares += order.sharesChanged
-        order.amountPaid = 0
+        order.amountChanged = 0
         order.sharesChanged = 0
+    
+    def addMarketToAgents(self):
+        for k,v in self.agents.items():
+            v.market = self
+

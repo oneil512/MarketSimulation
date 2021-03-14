@@ -1,12 +1,13 @@
 import numpy as np
-from src import Market
+from src.Market import Market
+from src.Order import Order
 import uuid
 
 
 class Agent:
     # riskPropensity: float 0-1, 1 is highest risk
     # buyingPower: int 0-some number
-    def __init__(self, riskPropensity: float, buyingPower:int, market:Market):
+    def __init__(self, riskPropensity: float, buyingPower:int, market:Market=None):
         self.riskPropensity = riskPropensity
         self.buyingPower = buyingPower
         self.timePreference = self.getTimePreference()
@@ -20,7 +21,16 @@ class Agent:
     def getTimePreference(self) -> int:
         return (((self.riskPropensity - 0.0) * (2.6 * 10 ** 6 - 30)) / (1.0 - 0.0)) + 30
 
-    def getTrendPreference() -> np.array:
+    def getTrendPreference(self) -> list:
         marketData = this.market.getMarketData(this.timePreference)
         return marketData
+
+    def placeOrder(self, orderType:int, buy: bool, shares: int):
+        order = Order(orderType=orderType, buy=buy, shares=shares, id_=self.id)
+        self.market.placeOrder(order)
+
+    # place well behaved trades!
+    def policy():
+        pass
+
 

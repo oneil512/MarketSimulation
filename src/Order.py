@@ -2,11 +2,10 @@ import uuid
 
 class Order:
 
-    def __init__(self, orderType: int, buy: bool, price: float, shares: int, id_: uuid.uuid4, amountPaid: float):
+    def __init__(self, orderType: int, buy: bool, shares: int, id_: uuid.uuid4, price: float=None):
         self.orderType = orderType # 0 is market 1 is limit
         self.buy = buy
         self.price = price
-        self.amountPaid = amountPaid
         self.shares = shares
         self.filled = False
         self.agentId  = id_

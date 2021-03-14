@@ -14,23 +14,21 @@ class OrderBook:
         self.lastExecutedPrice = 0.00
         self.market = market
 
-    def placeOrder(order: Order):
+    def placeOrder(self, order: Order):
         if order.price > self.orderBookDepth or order.price < 0:
             print("invalid order placed: price not in range: ", price)
             return
         remainingOrder = self.matchOrder(order)
         self.pricePoints[order.price * 100].append(order)
 
-    def matchOrder(order: Order):
+    def matchOrder(self, order: Order):
         # Market order
         if order.orderType == 0:
             self.matchMarketOrder(order)
         else:
             self.matchLimitOrder(order)
 
-
-
-    def matchMarketOrder(order: Order):
+    def matchMarketOrder(self, order: Order):
         orderFilled = False
         price = self.lastExecutedPrice
         while not orderFilled and not price < 0 and not price > self.orderBookDepth:
@@ -103,7 +101,7 @@ class OrderBook:
         self.market.settleOrder(order)
         
 
-    def matchLimitOrder(order : Order):
+    def matchLimitOrder(self, order : Order):
         orderFilled = False
         price = self.lastExecutedPrice
         if order.buy:
@@ -177,5 +175,5 @@ class OrderBook:
             self.insertInOrderbook(order)
 
 
-    def insertInOrderbook(order : Order):
+    def insertInOrderbook(self, order : Order):
         self.pricePoints.append(order)
