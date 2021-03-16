@@ -7,13 +7,13 @@ import uuid
 class Agent:
     # riskPropensity: float 0-1, 1 is highest risk
     # buyingPower: int 0-some number
-    def __init__(self, riskPropensity: float, buyingPower:int, market:Market=None):
+    def __init__(self, riskPropensity: float, buyingPower:int, market:Market=None, shares=None):
         self.riskPropensity = riskPropensity
         self.buyingPower = buyingPower
         self.timePreference = self.getTimePreference()
         self.market = market
         self.id = uuid.uuid4()
-        self.shares = 0
+        self.shares = 0 if shares is None else shares
 
 
     # Returns time preference in seconds
@@ -25,8 +25,8 @@ class Agent:
         marketData = this.market.getMarketData(this.timePreference)
         return marketData
 
-    def placeOrder(self, orderType:int, buy: bool, shares: int):
-        order = Order(orderType=orderType, buy=buy, shares=shares, id_=self.id)
+    def placeOrder(self, orderType:int, buy: bool, shares: int, price:float = None):
+        order = Order(orderType=orderType, buy=buy, shares=shares, id_=self.id, price=price)
         self.market.placeOrder(order)
 
     # place well behaved trades!

@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 from src import Market, Order
 
@@ -62,7 +63,7 @@ class OrderBook:
                             o.filled = True
 
                             self.lastExecutedPrice = price
-                price += 1 / self.dollarIncrements
+                price += .01
                 
             else:
                 for o in orderList:
@@ -93,7 +94,7 @@ class OrderBook:
                             o.filled = True
                             
                             self.lastExecutedPrice = price
-                price -= 1 / self.dollarIncrements
+                price -= .01
 
         if not orderFilled:
             print('Market ran out of liquidity!')
@@ -106,7 +107,7 @@ class OrderBook:
         price = self.lastExecutedPrice
         if order.buy:
             while not orderFilled and not price < 0 and not price > self.orderBookDepth and price < order.price:
-                orderList = self.OrderBook[price]
+                orderList = self.pricePoints[price]
                 for o in orderList:
                     if order.buy != o.buy:
                         if o.shares >= order.shares:
@@ -135,7 +136,7 @@ class OrderBook:
                             o.filled = True
 
                             self.lastExecutedPrice = price
-                price += 1 / self.dollarIncrements
+                price += .01
         else:
             while not orderFilled and not price < 0 and not price > self.orderBookDepth and price > order.price:
                 orderList = self.OrderBook[price]
@@ -167,7 +168,7 @@ class OrderBook:
                             o.filled = True
                             
                             self.lastExecutedPrice = price
-                price -= 1 / self.dollarIncrements
+                price -= .01
 
         self.market.settleOrder(order)
 
@@ -176,4 +177,4 @@ class OrderBook:
 
 
     def insertInOrderbook(self, order : Order):
-        self.pricePoints.append(order)
+        self.pricePoints[order.price].append(order)

@@ -15,7 +15,7 @@ class Market:
         return this.orderData[-seconds:]
 
     def getCurrentPrice(self):
-        return self.OrderBook.lastExecutedPrice()
+        return self.orderBook.lastExecutedPrice
 
     def placeOrder(self, order: Order):
         self.orderBook.matchOrder(order)
@@ -24,7 +24,7 @@ class Market:
         pass
 
     def settleOrder(self, order: Order):
-        settlee = self.agents[order.id]
+        settlee = self.agents[order.agentId]
         settlee.buyingPower += order.amountChanged
         settlee.shares += order.sharesChanged
         order.amountChanged = 0
