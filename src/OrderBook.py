@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 from src import Market, Order
+from decimal import *
 
 class OrderBook:
 
@@ -33,7 +34,7 @@ class OrderBook:
         orderFilled = False
         price = self.lastExecutedPrice
         while not orderFilled and not price < 0 and not price > self.orderBookDepth:
-            orderList = self.OrderBook[price]
+            orderList = self.pricePoints[price]
             if order.buy:
                 for o in orderList:
                     if order.buy != o.buy:
@@ -42,9 +43,11 @@ class OrderBook:
 
                             o.sharesChanged -= order.shares
                             o.amountChanged += order.shares * price
+                            self.market.settleOrder(o)
 
                             order.sharesChanged += order.shares
                             order.amountChanged -= order.shares * price
+                            
 
                             order.shares = 0
                             orderFilled = True
@@ -61,10 +64,12 @@ class OrderBook:
 
                             o.shares = 0
                             o.filled = True
+                            self.market.settleOrder(o)
+
 
                             self.lastExecutedPrice = price
                 price += .01
-                
+                price = round(price,2)                
             else:
                 for o in orderList:
                     if order.buy != o.buy:
@@ -73,6 +78,7 @@ class OrderBook:
 
                             o.sharesChanged += order.shares
                             o.amountChanged -= order.shares * price
+                            self.market.settleOrder(o)
 
                             order.sharesChanged -= order.shares
                             order.amountChanged += order.shares * price
@@ -92,9 +98,11 @@ class OrderBook:
 
                             o.shares = 0
                             o.filled = True
+                            self.market.settleOrder(o)
                             
                             self.lastExecutedPrice = price
                 price -= .01
+                price = round(price,2)
 
         if not orderFilled:
             print('Market ran out of liquidity!')
@@ -106,7 +114,7 @@ class OrderBook:
         orderFilled = False
         price = self.lastExecutedPrice
         if order.buy:
-            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price < order.price:
+            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price <= order.price:
                 orderList = self.pricePoints[price]
                 for o in orderList:
                     if order.buy != o.buy:
@@ -115,6 +123,7 @@ class OrderBook:
 
                             o.sharesChanged -= order.shares
                             o.amountChanged += order.shares * price
+                            self.market.settleOrder(o)
 
                             order.sharesChanged += order.shares
                             order.amountChanged -= order.shares * price
@@ -134,11 +143,13 @@ class OrderBook:
 
                             o.shares = 0
                             o.filled = True
+                            self.market.settleOrder(o)
 
                             self.lastExecutedPrice = price
                 price += .01
+                price = round(price,2)
         else:
-            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price > order.price:
+            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price >= order.price:
                 orderList = self.OrderBook[price]
                 for o in orderList:
                     if order.buy != o.buy:
@@ -147,6 +158,7 @@ class OrderBook:
 
                             o.sharesChanged += order.shares
                             o.amountChanged -= order.shares * price
+                            self.market.settleOrder(o)
 
                             order.sharesChanged -= order.shares
                             order.amountChanged += order.shares * price
@@ -166,9 +178,11 @@ class OrderBook:
 
                             o.shares = 0
                             o.filled = True
+                            self.market.settleOrder(o)
                             
                             self.lastExecutedPrice = price
                 price -= .01
+                price = round(price,2)
 
         self.market.settleOrder(order)
 
