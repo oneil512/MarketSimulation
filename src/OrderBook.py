@@ -11,9 +11,9 @@ class OrderBook:
         # 1000 dollar range on the order book
         self.dollarIncrements = 100
         self.orderBookDepth = 1000
-        keys = list(range(0, self.orderBookDepth * self.dollarIncrements, 1))
+        keys = list(range(0, self.orderBookDepth * self.dollarIncrements + 1, 1))
         self.pricePoints = {key / self.dollarIncrements: [] for key in keys}
-        self.lastExecutedPrice = 0.00
+        self.lastExecutedPrice = 20.00
         self.market = market
 
     def placeOrder(self, order: Order):
@@ -29,6 +29,7 @@ class OrderBook:
             self.matchMarketOrder(order)
         else:
             self.matchLimitOrder(order)
+        self.market.orderData.append(self.lastExecutedPrice)
 
     def matchMarketOrder(self, order: Order):
         orderFilled = False
@@ -150,7 +151,7 @@ class OrderBook:
                 price = round(price,2)
         else:
             while not orderFilled and not price < 0 and not price > self.orderBookDepth and price >= order.price:
-                orderList = self.OrderBook[price]
+                orderList = self.pricePoints[price]
                 for o in orderList:
                     if order.buy != o.buy:
                         if o.shares >= order.shares:
