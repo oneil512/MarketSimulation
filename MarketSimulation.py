@@ -15,12 +15,11 @@ agents[master.id] = master
 m = Market(agents)
 
 master.placeOrder(orderType=1, buy=False, shares=1000, price=1.0)
-#master.placeOrder(orderType=1, buy=False, shares=1000, price=21.0)
-#master.placeOrder(orderType=1, buy=False, shares=1000, price=22.0)
-#master.placeOrder(orderType=1, buy=False, shares=1000, price=50.0)
-#master.placeOrder(orderType=1, buy=False, shares=1000, price=100.0)
-#master.placeOrder(orderType=1, buy=False, shares=1000, price=500.0)
-list(agents.values())[0].placeOrder(0, True, 20)
+master.placeOrder(orderType=1, buy=False, shares=1000, price=21.0)
+master.placeOrder(orderType=1, buy=False, shares=1000, price=22.0)
+master.placeOrder(orderType=1, buy=False, shares=1000, price=50.0)
+master.placeOrder(orderType=1, buy=False, shares=1000, price=100.0)
+master.placeOrder(orderType=1, buy=False, shares=1000, price=500.0)
 
 while True:
     for a in agents.values():

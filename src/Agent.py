@@ -54,10 +54,9 @@ class Agent:
 
     # place well behaved trades!
     def policy(self):
-        
 
         data = self.market.getMarketData(self.timePreference)
-        if data[0] < data[-1]:
+        if data[0] <= data[-1]:
             if self.shares * self.market.getCurrentPrice() + self.buyingPower > 1 + (self.riskPropensity * 10) * self.initialBuyingPower:
                 #take profit
                 self.sell(0.5)
