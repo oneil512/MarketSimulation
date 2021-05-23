@@ -5,6 +5,7 @@ from src.Order import Order
 class Market:
 
     def __init__(self, agents : dict):
+        # order list. Initialize it into a bull market to help the traders :)
         self.orderData = list(range(0,15))
         self.orderBook = OrderBook(market=self)
         self.agents = agents

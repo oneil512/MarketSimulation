@@ -24,7 +24,7 @@ class Agent:
         return int((((self.riskPropensity - 0.0) * (1000 - 30)) / (1.0 - 0.0)) + 30)
 
     def getTrendPreference(self) -> list:
-        marketData = this.market.getMarketData(this.timePreference)
+        marketData = self.market.getMarketData(self.timePreference)
         return marketData
 
     def placeOrder(self, orderType:int, buy: bool, shares: int, price:float = None):
@@ -32,9 +32,13 @@ class Agent:
         self.market.placeOrder(order)
 
     def limitBuy_(self):
-        shares = (.1 * self.buyingPower) // (self.market.orderBook.lastExecutedPrice // 2)
-        self.placeOrder(orderType=1, buy=True, shares=shares, price=(self.market.orderBook.lastExecutedPrice // 2))
-        self.buyingPower -= shares * (self.market.orderBook.lastExecutedPrice // 2)
+        p = round(self.market.orderBook.lastExecutedPrice / 1.55 * random.random(), 2)
+        if p <= 0:
+            return
+
+        shares = (.1 * self.buyingPower) // p
+        self.placeOrder(orderType=1, buy=True, shares=shares, price=p)
+        self.buyingPower -= shares * p
 
 
     def buy(self, percent=0.1):

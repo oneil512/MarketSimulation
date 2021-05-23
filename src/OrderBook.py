@@ -13,8 +13,15 @@ class OrderBook:
         self.orderBookDepth = 1000
         keys = list(range(0, self.orderBookDepth * self.dollarIncrements + 1, 1))
         self.pricePoints = {key / self.dollarIncrements: [] for key in keys}
-        self.lastExecutedPrice = 20.00
+        self.lastExecutedPrice = None
         self.market = market
+
+    def getActiveOrders(self):
+        r = {}
+        for k,v in self.pricePoints.items():
+            if len(v) > 0:
+                r[k] = v
+        return r
 
     def placeOrder(self, order: Order):
         if order.price > self.orderBookDepth or order.price < 0:
@@ -32,9 +39,8 @@ class OrderBook:
         self.market.orderData.append(self.lastExecutedPrice)
 
     def matchMarketOrder(self, order: Order):
-        orderFilled = False
-        price = self.lastExecutedPrice
-        while not orderFilled and not price < 0 and not price > self.orderBookDepth:
+        price = self.lastExecutedPrice if self.lastExecutedPrice else (0.0 if order.buy else float(self.orderBookDepth))
+        while not order.filled and not price < 0 and not price > self.orderBookDepth:
             orderList = self.pricePoints[price]
             if order.buy:
                 for o in orderList:
@@ -51,7 +57,6 @@ class OrderBook:
                             
 
                             order.shares = 0
-                            orderFilled = True
                             order.filled = True
                             self.lastExecutedPrice = price
                             break
@@ -85,7 +90,6 @@ class OrderBook:
                             order.amountChanged += order.shares * price
 
                             order.shares = 0
-                            orderFilled = True
                             order.filled = True
                             self.lastExecutedPrice = price
                             break
@@ -105,7 +109,7 @@ class OrderBook:
                 price -= .01
                 price = round(price,2)
 
-        if not orderFilled:
+        if not order.filled:
             print('Market ran out of liquidity!')
 
         self.market.settleOrder(order)
@@ -113,9 +117,9 @@ class OrderBook:
 
     def matchLimitOrder(self, order : Order):
         orderFilled = False
-        price = self.lastExecutedPrice
+        price = self.lastExecutedPrice if self.lastExecutedPrice else (0.0 if order.buy else float(self.orderBookDepth))
         if order.buy:
-            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price <= order.price:
+            while not order.filled and not price < 0 and not price > self.orderBookDepth and price <= order.price:
                 orderList = self.pricePoints[price]
                 for o in orderList:
                     if order.buy != o.buy:
@@ -130,7 +134,6 @@ class OrderBook:
                             order.amountChanged -= order.shares * price
 
                             order.shares = 0
-                            orderFilled = True
                             order.filled = True
                             self.lastExecutedPrice = price
                             break
@@ -150,7 +153,7 @@ class OrderBook:
                 price += .01
                 price = round(price,2)
         else:
-            while not orderFilled and not price < 0 and not price > self.orderBookDepth and price >= order.price:
+            while not order.filled and not price < 0 and not price > self.orderBookDepth and price >= order.price:
                 orderList = self.pricePoints[price]
                 for o in orderList:
                     if order.buy != o.buy:
@@ -165,7 +168,6 @@ class OrderBook:
                             order.amountChanged += order.shares * price
 
                             order.shares = 0
-                            orderFilled = True
                             order.filled = True
                             self.lastExecutedPrice = price
                             break
