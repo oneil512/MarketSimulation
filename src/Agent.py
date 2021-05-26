@@ -42,12 +42,12 @@ class Agent:
 
 
     def buy(self, percent=0.1):
-            if self.buyingPower > 0:
-                shares = (percent * self.buyingPower) // (self.market.orderBook.lastExecutedPrice + 0.1)
-                if shares > 0:
-                    self.placeOrder(orderType=0, buy=True, shares=shares)
+        if self.buyingPower > 0:
+            shares = (percent * self.buyingPower) // (self.market.orderBook.lastExecutedPrice + 0.1)
+            if shares > 0:
+                self.placeOrder(orderType=0, buy=True, shares=shares)
 
-    def sell(self, percent=0.1):
+    def sell(self, percent=0.5):
         if self.shares > 0:
             shares = int(self.shares * percent) 
             if shares > 0:

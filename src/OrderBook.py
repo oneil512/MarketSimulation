@@ -23,184 +23,77 @@ class OrderBook:
                 r[k] = v
         return r
 
-    def placeOrder(self, order: Order):
-        if order.price > self.orderBookDepth or order.price < 0:
-            print("invalid order placed: price not in range: ", order.price)
-            return
-        remainingOrder = self.matchOrder(order)
-        self.pricePoints[order.price * 100].append(remainingOrder)
-
     def matchOrder(self, order: Order):
-        # Market order
         if order.orderType == 0:
-            self.matchMarketOrder(order)
+            order, price = self.matchMarketOrder(order)
         else:
-            self.matchLimitOrder(order)
+            order, price = self.matchLimitOrder(order)
+
+        if not order.filled:
+            if price < 0:
+                price = 0.0
+
+            if price > self.orderBookDepth:
+                price = self.orderBookDepth
+
+            if order.orderType == 1:
+                self.insertInOrderbook(order)
+            else:
+                print('Market ran out of liquidity!')
+
+        self.lastExecutedPrice = price
+        self.market.settleOrder(order)
         self.market.orderData.append(self.lastExecutedPrice)
 
-    def matchMarketOrder(self, order: Order):
+    def matchLimitOrder(self, order):
+        price = order.price
+        orderList = self.pricePoints[price]
+        return self.execute_order(order, orderList, price)
+
+    def matchMarketOrder(self, order):
         price = self.lastExecutedPrice if self.lastExecutedPrice else (0.0 if order.buy else float(self.orderBookDepth))
-        while not order.filled and not price <= 0 and not price >= self.orderBookDepth:
+        while not order.filled and not price < 0 and not price > self.orderBookDepth:
             orderList = self.pricePoints[price]
-            if order.buy:
-                for o in orderList:
-                    if order.buy != o.buy:
-                        if o.shares >= order.shares:
-                            o.shares -= order.shares
+            order, price = self.execute_order(order, orderList, price)
+            if order.filled:
+                break
 
-                            o.sharesChanged -= order.shares
-                            o.amountChanged += order.shares * price
-                            self.market.settleOrder(o)
-
-                            order.sharesChanged += order.shares
-                            order.amountChanged -= order.shares * price
-                            
-
-                            order.shares = 0
-                            order.filled = True
-                            self.lastExecutedPrice = price
-                            break
-                        else:
-                            order.shares -= o.shares
-                            o.sharesChanged -= o.shares
-                            o.amountChanged += o.shares * price
-
-                            order.sharesChanged += o.shares
-                            order.amountChanged -= o.shares * price
-
-                            o.shares = 0
-                            o.filled = True
-                            self.market.settleOrder(o)
-
-
-                            self.lastExecutedPrice = price
-                price += .01
-                price = round(price,2)                
-            else:
-                for o in orderList:
-                    if order.buy != o.buy:
-                        if o.shares >= order.shares:
-                            o.shares += order.shares
-
-                            o.sharesChanged += order.shares
-                            o.amountChanged -= order.shares * price
-                            self.market.settleOrder(o)
-
-                            order.sharesChanged -= order.shares
-                            order.amountChanged += order.shares * price
-
-                            order.shares = 0
-                            order.filled = True
-                            self.lastExecutedPrice = price
-                            break
-                        else:
-                            order.shares -= o.shares
-                            o.sharesChanged += o.shares
-                            o.amountChanged -= o.shares * price
-
-                            order.sharesChanged -= o.shares
-                            order.amountChanged += o.shares * price
-
-                            o.shares = 0
-                            o.filled = True
-                            self.market.settleOrder(o)
-                            
-                            self.lastExecutedPrice = price
-                price -= .01
-                price = round(price,2)
-
-        if not order.filled:
-            self.lastExecutedPrice = price
-            print('Market ran out of liquidity!')
-
-        self.market.settleOrder(order)
-        
-
-    def matchLimitOrder(self, order : Order):
-        price = self.lastExecutedPrice if self.lastExecutedPrice else (0.0 if order.buy else float(self.orderBookDepth))
-        if order.buy:
-            while not order.filled and not price <= 0 and not price >= self.orderBookDepth and price <= order.price:
-                orderList = self.pricePoints[price]
-                for o in orderList:
-                    if order.buy != o.buy:
-                        if o.shares >= order.shares:
-                            o.shares -= order.shares
-
-                            o.sharesChanged -= order.shares
-                            o.amountChanged += order.shares * price
-                            self.market.settleOrder(o)
-
-                            order.sharesChanged += order.shares
-                            order.amountChanged -= order.shares * price
-
-                            order.shares = 0
-                            order.filled = True
-                            self.lastExecutedPrice = price
-                            break
-                        else:
-                            order.shares -= o.shares
-                            o.sharesChanged -= o.shares
-                            o.amountChanged += o.shares * price
-
-                            order.sharesChanged += o.shares
-                            order.amountChanged -= o.shares * price
-
-                            o.shares = 0
-                            o.filled = True
-                            self.market.settleOrder(o)
-
-                            self.lastExecutedPrice = price
-                price += .01
-                price = round(price,2)
-        else:
-            while not order.filled and not price < 0 and not price > self.orderBookDepth and price >= order.price:
-                orderList = self.pricePoints[price]
-                for o in orderList:
-                    if order.buy != o.buy:
-                        if o.shares >= order.shares:
-                            o.shares += order.shares
-
-                            o.sharesChanged += order.shares
-                            o.amountChanged -= order.shares * price
-                            self.market.settleOrder(o)
-
-                            order.sharesChanged -= order.shares
-                            order.amountChanged += order.shares * price
-
-                            order.shares = 0
-                            order.filled = True
-                            self.lastExecutedPrice = price
-                            break
-                        else:
-                            order.shares -= o.shares
-                            o.sharesChanged += o.shares
-                            o.amountChanged -= o.shares * price
-
-                            order.sharesChanged -= o.shares
-                            order.amountChanged += o.shares * price
-
-                            o.shares = 0
-                            o.filled = True
-                            self.market.settleOrder(o)
-                            
-                            self.lastExecutedPrice = price
-                price -= .01
-                price = round(price,2)
-
-        self.market.settleOrder(order)
-
-        if not order.filled:
-            self.insertInOrderbook(order)
-
-            # we've incremented the price one too many times since the price adjustment comes at the end of the loop
-            price_adjustment = 0.01
-            if not order.buy:
-                price_adjustment *= -1
-            price += price_adjustment
+            price += .01 if order.buy else -.01
             price = round(price,2)
-
-            self.lastExecutedPrice = price
+        return order, price
 
 
     def insertInOrderbook(self, order : Order):
         self.pricePoints[order.price].append(order)
+
+
+    def execute_order(self, order, orderList, price):
+        buy_flag = 1 if order.buy else -1
+        for o in orderList:
+            if order.buy != o.buy:
+                if o.shares >= order.shares:
+                    o.shares -= order.shares
+
+                    o.sharesChanged -= order.shares * buy_flag
+                    o.amountChanged += order.shares * price * buy_flag
+
+                    order.sharesChanged += order.shares * buy_flag
+                    order.amountChanged -= order.shares * price * buy_flag
+
+                    order.shares = 0
+                    order.filled = True
+                    break
+                else:
+                    order.shares -= o.shares
+                    o.sharesChanged -= o.shares * buy_flag
+                    o.amountChanged += o.shares * price * buy_flag
+
+                    order.sharesChanged += o.shares * buy_flag
+                    order.amountChanged -= o.shares * price * buy_flag
+
+                    o.shares = 0
+                    o.filled = True
+
+                self.market.settleOrder(o)
+
+        return order, price

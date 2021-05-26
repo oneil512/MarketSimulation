@@ -35,7 +35,7 @@ class Market:
         order.sharesChanged = 0
 
         # only limit orders have a price
-        if order.price:
+        if order.price and order.shares == 0:
             if order in self.orderBook.pricePoints[order.price]:
                 del self.orderBook.pricePoints[order.price][self.orderBook.pricePoints[order.price].index(order)]
     
@@ -46,3 +46,5 @@ class Market:
     def printAgentsHoldings(self):
         for k,v in self.agents.items():
             print(v.buyingPower, v.shares)
+
+   
