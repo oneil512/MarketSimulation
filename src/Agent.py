@@ -43,14 +43,15 @@ class Agent:
 
     def buy(self, percent=0.1):
             if self.buyingPower > 0:
-                shares = (percent * self.buyingPower) // self.market.orderBook.lastExecutedPrice
+                shares = (percent * self.buyingPower) // (self.market.orderBook.lastExecutedPrice + 0.1)
                 if shares > 0:
                     self.placeOrder(orderType=0, buy=True, shares=shares)
 
     def sell(self, percent=0.1):
         if self.shares > 0:
             shares = int(self.shares * percent) 
-            self.placeOrder(orderType=0, buy=False, shares=shares)
+            if shares > 0:
+                self.placeOrder(orderType=0, buy=False, shares=shares)
 
     # place well behaved trades!
     def policy(self):
@@ -71,5 +72,10 @@ class Agent:
             if self.buyingPower > (self.market.orderBook.lastExecutedPrice // 2):
                 self.limitBuy_()
             
-
+    # cant get 1 to work. market keeps running out of liquidity. lets try a more random approach
+    def policy_2(self):
+        if random.random() < 0.5:
+            self.sell()
+            return
+        self.buy()
 

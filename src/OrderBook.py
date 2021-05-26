@@ -25,10 +25,10 @@ class OrderBook:
 
     def placeOrder(self, order: Order):
         if order.price > self.orderBookDepth or order.price < 0:
-            print("invalid order placed: price not in range: ", price)
+            print("invalid order placed: price not in range: ", order.price)
             return
         remainingOrder = self.matchOrder(order)
-        self.pricePoints[order.price * 100].append(order)
+        self.pricePoints[order.price * 100].append(remainingOrder)
 
     def matchOrder(self, order: Order):
         # Market order
@@ -191,6 +191,14 @@ class OrderBook:
 
         if not order.filled:
             self.insertInOrderbook(order)
+
+            # we've incremented the price one too many times since the price adjustment comes at the end of the loop
+            price_adjustment = 0.01
+            if not order.buy:
+                price_adjustment *= -1
+            price += price_adjustment
+            price = round(price,2)
+
             self.lastExecutedPrice = price
 
 

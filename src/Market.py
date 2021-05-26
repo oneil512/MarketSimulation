@@ -33,8 +33,16 @@ class Market:
         settlee.shares += order.sharesChanged
         order.amountChanged = 0
         order.sharesChanged = 0
+
+        # only limit orders have a price
+        if order.price:
+            if order in self.orderBook.pricePoints[order.price]:
+                del self.orderBook.pricePoints[order.price][self.orderBook.pricePoints[order.price].index(order)]
     
     def addMarketToAgents(self):
         for k,v in self.agents.items():
             v.market = self
 
+    def printAgentsHoldings(self):
+        for k,v in self.agents.items():
+            print(v.buyingPower, v.shares)

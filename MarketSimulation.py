@@ -14,17 +14,19 @@ agents[master.id] = master
 
 m = Market(agents)
 
-master.placeOrder(orderType=1, buy=False, shares=1000, price=1.0)
-master.placeOrder(orderType=1, buy=False, shares=1000, price=21.0)
-master.placeOrder(orderType=1, buy=False, shares=1000, price=22.0)
-master.placeOrder(orderType=1, buy=False, shares=1000, price=50.0)
-master.placeOrder(orderType=1, buy=False, shares=1000, price=100.0)
-master.placeOrder(orderType=1, buy=False, shares=1000, price=500.0)
+master.placeOrder(orderType=1, buy=False, shares=200, price=20.0)
+master.placeOrder(orderType=1, buy=False, shares=100, price=21.0)
+master.placeOrder(orderType=1, buy=False, shares=50, price=22.0)
+
+master.placeOrder(orderType=1, buy=True, shares=50, price=19.0)
+master.placeOrder(orderType=1, buy=True, shares=100, price=18.0)
+master.placeOrder(orderType=1, buy=True, shares=200, price=17.0)
 
 while True:
     for a in agents.values():
-        a.policy()
-        print(m.getCurrentPrice())
+        if not a is master:
+            a.policy_2()
+            print(m.getCurrentPrice())
 
 
 
